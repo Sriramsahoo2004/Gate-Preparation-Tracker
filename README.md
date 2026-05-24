@@ -32,11 +32,4 @@ Because this is a serverless, client-side application, installation is instantan
 
 1. Clone the repository:
 ```bash
-   git clone [https://github.com/Sriramsahoo2004/gate-cse-tracker.git](https://github.com/Sriramsahoo2004/gate-cse-tracker.git)
-
-2. Open the folder and double-click index.html (or whatever you named the file) to open it in any modern browser (Chrome, Edge, Brave, Firefox).
-
-3. Start logging your mock tests!
-
-## 🤝 Contributing
-Contributions, issues, and feature requests are welcome! If you want to fork this and adapt it for GATE EE, ME, or ECE, simply update the CSE_SYLLABUS JSON object inside the <script> tag.
+   git clone https://github.com/Sriramsahoo2004/gate-cse-tracker.git
