@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GATE Preparation Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#05080f;--s1:#0b0f1c;--s2:#0f1528;--s3:#131a30;
+  --bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.13);
+  --tx:#cdd5f0;--d1:#3d4a6a;--d2:#6b7ba4;
+  --gold:#f59e0b;--gold2:#d97706;--gg:rgba(245,158,11,0.14);
+  --teal:#14b8a6;--tg:rgba(20,184,166,0.13);
+  --rose:#f87171;--rg:rgba(248,113,113,0.13);
+  --blue:#60a5fa;--bg2:rgba(96,165,250,0.13);
+  --violet:#a78bfa;--vg:rgba(167,139,250,0.13);
+  --green:#4ade80;--grg:rgba(74,222,128,0.13);
+  --head:'Outfit',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+
+html{height:100%;}
+body{font-family:var(--head);background:var(--bg);color:var(--tx);
+  display:flex;flex-direction:column;height:100%;height:100dvh;overflow:hidden;}
+
+/* AMBIENT */
+.amb{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 60% 45% at 5% 0%,rgba(245,158,11,.06),transparent 55%),
+             radial-gradient(ellipse 50% 40% at 95% 100%,rgba(20,184,166,.05),transparent 55%),
+             radial-gradient(rgba(255,255,255,.022) 1px,transparent 1px) 0 0/28px 28px;}
+
+/* TOPBAR (mobile only) */
+.topbar{display:none;align-items:center;gap:12px;padding:11px 16px;
+  background:var(--s1);border-bottom:1px solid var(--bd);
+  flex-shrink:0;position:relative;z-index:50;}
+.tb-brand{flex:1;}
+.tb-tag{font-family:var(--mono);font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);opacity:.7;}
+.tb-name{font-size:.95rem;font-weight:800;letter-spacing:-.03em;
+  background:linear-gradient(130deg,#fff 20%,var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2;}
+.ham-btn{width:36px;height:36px;background:transparent;border:1px solid var(--bd);
+  border-radius:8px;cursor:pointer;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;gap:4px;flex-shrink:0;transition:all .2s;}
+.ham-btn:hover{background:rgba(255,255,255,.06);border-color:var(--bd2);}
+.ham-btn span{display:block;width:16px;height:2px;background:var(--tx);border-radius:2px;}
+
+/* OVERLAY */
+.overlay{display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.65);}
+.overlay.show{display:block;animation:fadeIn .22s ease;}
+
+.shell{flex:1;overflow:hidden;}
+
+/* SIDEBAR */
+.sb{position:fixed;top:0;left:0;bottom:0;width:232px;
+  background:var(--s1);border-right:1px solid var(--bd);
+  display:flex;flex-direction:column;overflow:hidden;
+  z-index:9999;transition:transform .3s cubic-bezier(.4,0,.2,1);will-change:transform;}
+.sb::after{content:'';position:absolute;top:0;right:0;bottom:0;width:1px;
+  background:linear-gradient(to bottom,transparent,rgba(245,158,11,.22),transparent);}
+.sb-brand{padding:20px 16px 16px;border-bottom:1px solid var(--bd);}
+.sb-tag{font-family:var(--mono);font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:3px;}
+.sb-name{font-size:1.05rem;font-weight:800;letter-spacing:-.03em;
+  background:linear-gradient(130deg,#fff 20%,var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2;}
+.sb-nav{flex:1;padding:10px 8px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;}
+.sb-nav::-webkit-scrollbar{width:0;}
+.ni{display:flex;align-items:center;gap:9px;padding:10px 11px;border-radius:9px;
+  border:1px solid transparent;background:transparent;
+  color:var(--d2);font-family:var(--head);font-size:.84rem;font-weight:500;
+  cursor:pointer;text-align:left;width:100%;transition:all .18s;}
+.ni .ico{font-size:.9rem;flex-shrink:0;}
+.ni:hover{color:var(--tx);background:rgba(255,255,255,.05);}
+.ni.on{color:var(--gold);background:rgba(245,158,11,.09);border-color:rgba(245,158,11,.2);}
+.ni-red{color:var(--rose) !important;}
+.ni-red:hover{background:rgba(248,113,113,.09) !important;color:var(--rose) !important;}
+.sb-btm{padding:8px;border-top:1px solid var(--bd);}
+
+/* MAIN */
+.main{margin-left:232px;height:100vh;overflow-y:auto;overflow-x:hidden;}
+.main::-webkit-scrollbar{width:4px;}
+.main::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:99px;}
+
+/* PAGES */
+.pg{display:none;padding:26px 28px 70px;}
+.pg.on{display:block;animation:pgIn .28s ease;}
+@keyframes pgIn{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes popIn{from{opacity:0;transform:scale(.93);}to{opacity:1;transform:scale(1);}}
+
+/* PAGE HEADER */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+  flex-wrap:wrap;margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid var(--bd);}
+.pt{font-size:1.4rem;font-weight:800;letter-spacing:-.03em;
+  background:linear-gradient(120deg,#fff 35%,var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.ps{font-size:.74rem;color:var(--d2);margin-top:3px;}
+
+/* ── COMMAND CENTER HERO ── */
+.hero-banner{
+  background:linear-gradient(145deg,rgba(11,15,28,1) 0%,rgba(19,26,48,1) 100%);
+  border:1px solid var(--bd);border-radius:16px;padding:28px;
+  text-align:center;position:relative;overflow:hidden;
+  margin-bottom:22px;box-shadow:0 10px 30px rgba(0,0,0,.5);
+}
+.hero-banner::before{
+  content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(circle,rgba(245,158,11,.05) 0%,transparent 60%);
+  pointer-events:none;z-index:0;
+}
+.hero-banner>*{position:relative;z-index:1;}
+.hero-countdown{font-family:var(--mono);font-size:3.5rem;font-weight:800;
+  color:var(--gold);line-height:1;letter-spacing:-.05em;text-shadow:0 0 20px rgba(245,158,11,.2);}
+.hero-label{font-size:.82rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--d2);margin-top:10px;}
+.hero-quote{margin-top:18px;font-size:1.15rem;font-weight:600;font-style:italic;
+  color:var(--tx);border-top:1px solid var(--bd);padding-top:14px;
+  max-width:650px;margin-inline:auto;letter-spacing:0.5px;}
+
+/* Mission + Streak Grid */
+.mission-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-bottom:20px;}
+.mission-card{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:18px;display:flex;flex-direction:column;gap:11px;}
+.mission-title{font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);display:flex;align-items:center;gap:7px;}
+.mission-sub{font-size:.75rem;color:var(--d2);}
+.mission-item{display:flex;align-items:center;gap:12px;padding:11px 14px;
+  background:rgba(255,255,255,.03);border:1px solid var(--bd);border-radius:9px;font-size:.83rem;transition:border-color .2s;}
+.mission-item:hover{border-color:rgba(245,158,11,.2);}
+.mission-item .m-ico{color:var(--gold);font-size:1.1rem;flex-shrink:0;}
+.mission-item .m-txt{display:flex;flex-direction:column;gap:2px;}
+.mission-item .m-txt b{font-size:.83rem;}
+.mission-item .m-txt span{font-size:.72rem;color:var(--d2);}
+
+.streak-card{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:18px;text-align:center;}
+.streak-title{font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:14px;}
+.streak-days{display:flex;justify-content:center;gap:7px;}
+.streak-day{width:30px;height:30px;border-radius:6px;background:var(--s3);
+  display:grid;place-items:center;font-size:.62rem;color:var(--d2);font-weight:700;transition:.25s;}
+.streak-day.active{background:rgba(74,222,128,.18);border:1px solid var(--green);
+  color:var(--green);box-shadow:0 0 8px rgba(74,222,128,.12);}
+.streak-stat{margin-top:18px;font-family:var(--mono);font-size:2.4rem;font-weight:800;color:var(--tx);}
+.streak-stat-lbl{font-size:.67rem;color:var(--d2);text-transform:uppercase;letter-spacing:.1em;}
+
+/* STAT CARDS */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.sc{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:14px;
+  position:relative;overflow:hidden;transition:border-color .25s,transform .2s;}
+.sc:hover{border-color:var(--bd2);transform:translateY(-2px);}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--ac,var(--gold)),transparent);}
+.si{font-size:.95rem;margin-bottom:6px;}
+.sv{font-family:var(--mono);font-size:1.7rem;font-weight:600;color:#fff;line-height:1;letter-spacing:-.03em;}
+.sl{font-size:.62rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--d2);margin-top:4px;}
+
+/* CHARTS */
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+.cc{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:16px;}
+.ct{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--d2);margin-bottom:12px;}
+.cw{position:relative;height:210px;}
+
+/* FORM */
+.fc{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:20px;margin-bottom:14px;}
+.fct{font-size:.87rem;font-weight:700;color:var(--gold);margin-bottom:14px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fl{font-size:.64rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--d2);}
+.fi,.fs{
+  background:rgba(255,255,255,.04);border:1px solid var(--bd);border-radius:8px;
+  padding:9px 12px;color:var(--tx);font-family:var(--head);font-size:.83rem;width:100%;
+  transition:border-color .2s,box-shadow .2s;
+}
+.fi:focus,.fs:focus{outline:none;border-color:rgba(245,158,11,.5);box-shadow:0 0 0 3px rgba(245,158,11,.07);}
+.fs option{background:var(--s3);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:9px 16px;border-radius:9px;border:1px solid var(--bd);
+  background:var(--s2);color:var(--tx);font-family:var(--head);font-size:.82rem;font-weight:600;
+  cursor:pointer;transition:all .18s;white-space:nowrap;}
+.btn:hover{background:var(--s3);border-color:var(--bd2);color:var(--tx);}
+.btn-gold{background:linear-gradient(135deg,var(--gold2),var(--gold));border-color:transparent;color:#000;box-shadow:0 2px 14px var(--gg);}
+.btn-gold:hover{background:linear-gradient(135deg,#e08800,#fbbf24);border-color:transparent;color:#000;}
+.btn-teal{background:var(--tg);border-color:rgba(20,184,166,.3);color:var(--teal);}
+.btn-teal:hover{background:rgba(20,184,166,.22);border-color:rgba(20,184,166,.5);color:var(--teal);}
+.btn-rose{background:var(--rg);border-color:rgba(248,113,113,.3);color:var(--rose);}
+.btn-rose:hover{background:rgba(248,113,113,.22);border-color:rgba(248,113,113,.5);color:var(--rose);}
+.btn-blue{background:var(--bg2);border-color:rgba(96,165,250,.3);color:var(--blue);}
+.btn-sm{padding:5px 11px;font-size:.72rem;}
+.btn-full{width:100%;padding:12px;}
+
+/* SCORE CHIP */
+.chip{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:13px 16px;border-radius:11px;margin-top:13px;
+  background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.22);}
+.chip-item{display:flex;flex-direction:column;gap:2px;}
+.chip-val{font-family:var(--mono);font-size:1.3rem;font-weight:600;color:var(--gold);}
+.chip-lbl{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--d2);}
+.chip-div{width:1px;height:32px;background:rgba(245,158,11,.2);flex-shrink:0;}
+.chip-note{font-size:.68rem;color:var(--d2);font-family:var(--mono);width:100%;padding-top:4px;}
+
+/* ── QUESTION ROWS ── */
+.q-header{
+  display:grid;grid-template-columns:44px 1fr 1fr 86px 86px 125px 1fr;gap:8px;align-items:center;
+  padding:8px 16px;background:var(--s2);border:1px solid var(--bd);border-radius:11px 11px 0 0;border-bottom:none;
+}
+.q-col-lbl{font-size:.59rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--d2);}
+.q-list{border:1px solid var(--bd);border-radius:0 0 11px 11px;overflow:hidden;}
+.q-row{
+  display:grid;grid-template-columns:44px 1fr 1fr 86px 86px 125px 1fr;gap:8px;align-items:center;
+  padding:8px 16px;border-bottom:1px solid rgba(255,255,255,.04);border-left:3px solid transparent;
+}
+.q-row:last-child{border-bottom:none;}
+.q-row.row-c{border-left-color:var(--teal);background:rgba(20,184,166,.035);}
+.q-row.row-i{border-left-color:var(--rose);background:rgba(248,113,113,.035);}
+.q-row.row-u{border-left-color:var(--bd);background:transparent;}
+
+.q-num{font-family:var(--mono);font-size:.67rem;font-weight:700;color:var(--d2);text-align:center;background:rgba(255,255,255,.05);border-radius:6px;padding:5px 2px;}
+.q-inp,.q-sel{
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);
+  border-radius:8px;padding:7px 10px;color:var(--tx);font-family:var(--head);font-size:.8rem;width:100%;
+}
+.q-inp:focus,.q-sel:focus{outline:none;border-color:rgba(245,158,11,.5);background:rgba(245,158,11,.04);}
+.q-inp[readonly]{opacity:.55;cursor:not-allowed;}
+
+.q-sel.st-c{border-color:rgba(20,184,166,.5);color:var(--teal);background:rgba(20,184,166,.06);}
+.q-sel.st-i{border-color:rgba(248,113,113,.5);color:var(--rose);background:rgba(248,113,113,.06);}
+.q-sel.st-u{border-color:rgba(255,255,255,.09);color:var(--d2);background:rgba(255,255,255,.04);}
+
+.q-cause{display:none;}
+.q-cause.visible{display:block;border-color:rgba(245,158,11,.35);color:var(--gold);background:rgba(245,158,11,.05);}
+
+/* DATA TABLES */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{padding:9px 12px;font-size:.61rem;font-weight:600;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--d2);text-align:left;
+  background:var(--s2);border-bottom:1px solid var(--bd);white-space:nowrap;}
+.tbl td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.03);font-size:.82rem; white-space:nowrap;}
+.tbl tbody tr{background:var(--s1);}
+.tbl tbody tr:hover{background:var(--s2);}
+
+/* BADGES */
+.bdg{font-family:var(--mono);font-size:.58rem;font-weight:600;padding:2px 7px;border-radius:4px;text-transform:uppercase;border:1px solid;white-space:nowrap;display:inline-block;}
+.bg {color:var(--gold); border-color:rgba(245,158,11,.3); background:var(--gg);}
+.bt {color:var(--teal); border-color:rgba(20,184,166,.3); background:var(--tg);}
+.br {color:var(--rose); border-color:rgba(248,113,113,.3); background:var(--rg);}
+.bb {color:var(--blue); border-color:rgba(96,165,250,.3);  background:var(--bg2);}
+.bv {color:var(--violet);border-color:rgba(167,139,250,.3);background:var(--vg);}
+.bgry{color:var(--d2); border-color:var(--bd);             background:rgba(255,255,255,.05);}
+
+.pb-row{display:flex;align-items:center;gap:7px;}
+.pb{width:60px;height:3px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;flex-shrink:0;}
+.pb-f{height:100%;border-radius:99px;transition:width .5s;}
+
+.sdiv{display:flex;align-items:center;gap:8px;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--d2);margin:18px 0 10px;}
+.sdiv::after{content:'';flex:1;height:1px;background:var(--bd);}
+
+/* SRS */
+.srs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.srs-card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:14px;text-align:center;}
+.srs-val{font-family:var(--mono);font-size:1.9rem;font-weight:700;line-height:1;}
+.srs-lbl{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--d2);margin-top:4px;}
+
+/* TOPIC EXPLORER */
+.te{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:17px;margin-bottom:18px;}
+.te-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:13px;}
+.te-title{font-size:.87rem;font-weight:700;color:var(--gold);}
+.te-sub-txt{font-size:.71rem;color:var(--d2);margin-top:2px;}
+
+/* ANALYSIS CARDS */
+.ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-bottom:14px;}
+.acard{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:14px;
+  display:flex;flex-direction:column;gap:8px;transition:border-color .2s,transform .2s;}
+.acard:hover{border-color:var(--bd2);transform:translateY(-2px);}
+.acard-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.acard-name{font-size:.82rem;font-weight:600;}
+.acard-bar{height:3px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;}
+.acard-fill{height:100%;border-radius:99px;transition:width .5s;}
+.acard-meta{display:flex;gap:9px;font-family:var(--mono);font-size:.63rem;color:var(--d2);}
+.acard-note{margin-top:4px;padding-top:8px;border-top:1px dashed var(--bd);display:flex;gap:7px;align-items:center;}
+
+/* MISTAKE CARDS */
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;margin-top:12px;}
+.mk{background:var(--s1);border:1px solid var(--bd);border-left:3px solid var(--rose);
+  border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:11px;}
+.mk.mk-unattempted { border-left-color: var(--d2); }
+.mk-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.mk-topic{font-size:.9rem;font-weight:600;margin-top:5px;color:var(--tx);}
+.mk-cause{font-size:.75rem;color:var(--d2);}
+.mk-note{background:rgba(0,0,0,.25);border:1px dashed rgba(245,158,11,.25);
+  color:var(--gold);font-family:var(--mono);resize:none;height:60px;
+  padding:10px;border-radius:7px;font-size:.79rem;width:100%;
+  transition:border-color .2s;}
+.mk-note:focus{outline:none;border-color:rgba(245,158,11,.5);}
+.mk-files{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.file-zone{background:rgba(255,255,255,.03);border:1px solid var(--bd);border-radius:9px;
+  padding:10px;display:flex;flex-direction:column;gap:8px;align-items:center;text-align:center;
+  transition:border-color .2s;}
+.file-zone-lbl{font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--d2);font-weight:600;}
+.file-zone.has-file{background:rgba(20,184,166,.05);border-color:rgba(20,184,166,.3);}
+.file-zone.has-file .file-zone-lbl{color:var(--teal);}
+.file-btns{display:flex;width:100%;gap:5px;}
+
+/* MODALS */
+.modal-bg{display:none;position:fixed;inset:0;z-index:99999;
+  background:rgba(0,0,0,.88);align-items:center;justify-content:center;padding:16px;}
+.modal-bg.open{display:flex;animation:fadeIn .2s ease;}
+.modal-box{background:var(--s2);border:1px solid rgba(245,158,11,.2);border-radius:16px;
+  padding:24px;width:100%;max-width:750px;max-height:90vh;overflow-y:auto;
+  box-shadow:0 0 70px rgba(245,158,11,.08),0 30px 70px rgba(0,0,0,.7);
+  animation:popIn .25s cubic-bezier(.34,1.45,.64,1);
+  -webkit-overflow-scrolling: touch;
+}
+.modal-box::-webkit-scrollbar{width:4px;}
+.modal-box::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:99px;}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.modal-title{font-size:1.05rem;font-weight:800;letter-spacing:-.02em;
+  background:linear-gradient(120deg,#fff,var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.modal-close{width:28px;height:28px;border-radius:7px;border:1px solid var(--bd);
+  background:transparent;color:var(--d2);cursor:pointer;font-size:.85rem;
+  display:grid;place-items:center;transition:all .2s;}
+.modal-close:hover{background:var(--s3);color:var(--tx);border-color:var(--bd2);}
+
+.m-score-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:11px 14px;border-radius:10px;margin-bottom:14px;
+  background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.18);}
+.msr-item{display:flex;flex-direction:column;gap:1px;}
+.msr-val{font-family:var(--mono);font-size:1.1rem;font-weight:600;color:var(--gold);}
+.msr-lbl{font-size:.59rem;letter-spacing:.08em;text-transform:uppercase;color:var(--d2);}
+.msr-div{width:1px;height:28px;background:rgba(245,158,11,.2);flex-shrink:0;}
+
+.log-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px;}
+.log-box{background:rgba(0,0,0,.2);border:1px solid var(--bd);border-radius:9px;
+  padding:8px;max-height:190px;overflow-y:auto;margin-top:6px; -webkit-overflow-scrolling: touch;}
+.log-box::-webkit-scrollbar{width:3px;}
+.log-box::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:99px;}
+.log-row{padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.04);
+  font-size:.76rem;display:flex;align-items:flex-start;gap:7px;}
+.log-row:last-child{border:none;}
+
+/* Viewer modal */
+.viewer-box{background:var(--bg);border:1px solid var(--bd);border-radius:12px;
+  padding:16px;width:100%;max-width:1000px;height:90vh;
+  display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.8);
+  -webkit-overflow-scrolling: touch;}
+.viewer-content{flex:1;background:var(--s1);border-radius:8px;
+  overflow:hidden;display:grid;place-items:center;position:relative;}
+.viewer-content img{max-width:100%;max-height:100%;object-fit:contain;}
+.viewer-content iframe{width:100%;height:100%;border:none;}
+
+.empty{text-align:center;padding:50px 20px;color:var(--d1);display:flex;flex-direction:column;align-items:center;gap:9px;}
+.empty-ico{font-size:2rem;opacity:.3;}
+.empty-txt{font-size:.83rem;}
+
+@media(max-width:1100px){.sg{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:900px){
+  .sb{width:200px;}.main{margin-left:200px;}
+  .mission-grid{grid-template-columns:1fr;}
+  .q-header{display:none;}
+  .q-row{grid-template-columns:36px 1fr 1fr;grid-template-rows:auto auto;row-gap:6px;}
+  .q-row > *:nth-child(n+4){font-size:.76rem;}
+}
+@media(max-width:640px){
+  .topbar{display:flex;}
+  .main{margin-left:0;height:calc(100vh - 52px);}
+  .sb{transform:translateX(-100%);width:260px;box-shadow:6px 0 40px rgba(0,0,0,.7);}
+  .sb.open{transform:translateX(0);}
+  .pg{padding:14px 14px 60px;}
+  .hero-countdown{font-size:2.5rem;}
+  .sg{grid-template-columns:repeat(2,1fr);}
+  .cg{grid-template-columns:1fr;}
+  .g2,.g3{grid-template-columns:1fr;}
+  .mission-grid{grid-template-columns:1fr;}
+  .mk-files{grid-template-columns:1fr;}
+  .log-2{grid-template-columns:1fr;}
+  .q-header{display:none;}
+  .q-row{
+    grid-template-columns:36px 1fr 1fr;
+    grid-template-rows:auto auto auto auto;
+    row-gap:5px;
+    padding:10px 12px;
+  }
+  .q-row > *:nth-child(1){ grid-column:1;     grid-row:1; }
+  .q-row > *:nth-child(2){ grid-column:2 / 4; grid-row:1; }
+  .q-row > *:nth-child(3){ grid-column:1 / 4; grid-row:2; }
+  .q-row > *:nth-child(4){ grid-column:1 / 2; grid-row:3; font-size:.75rem; }
+  .q-row > *:nth-child(5){ grid-column:2 / 3; grid-row:3; font-size:.75rem; }
+  .q-row > *:nth-child(6){ grid-column:3 / 4; grid-row:3; font-size:.75rem; }
+  .q-row > *:nth-child(7){ grid-column:1 / 4; grid-row:4; }
+  .viewer-box{height:95vh;padding:10px;}
+}
+</style>
+</head>
+<body>
+
+<div class="amb"></div>
+
+<div class="topbar" id="topbar">
+  <div class="tb-brand">
+    <div class="tb-tag">// GATE CSE 2027</div>
+    <div class="tb-name">Preparation Tracker</div>
+  </div>
+  <button class="ham-btn" id="hamBtn" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<nav class="sb" id="sidebar">
+  <div class="sb-brand">
+    <div class="sb-tag">// GATE CSE 2027</div>
+    <div class="sb-name">Preparation Tracker</div>
+  </div>
+  <div class="sb-nav">
+    <button class="ni on" data-tab="dashboard"><span class="ico">🚀</span> Command Center</button>
+    <button class="ni" data-tab="add-test"><span class="ico">✍️</span> Add Test Entry</button>
+    <button class="ni" data-tab="test-history"><span class="ico">📊</span> Analytics &amp; History</button>
+    <button class="ni" data-tab="analysis"><span class="ico">📈</span> Subject Deep Dive</button>
+    <button class="ni" data-tab="revision"><span class="ico">🧠</span> Spaced Revision</button>
+    <button class="ni" data-tab="mistakes"><span class="ico">📓</span> Book of Mistakes</button>
+  </div>
+  <div class="sb-btm">
+    <button class="ni" id="exportBtn"><span class="ico">💾</span> Backup Data</button>
+    <label class="ni" style="margin-top:2px;">
+      <span class="ico">📂</span> Restore Data
+      <input type="file" id="importInput" accept=".json" style="display:none;">
+    </label>
+    <button class="ni ni-red" id="clearBtn" style="margin-top:2px;"><span class="ico">⚠️</span> Factory Reset</button>
+  </div>
+</nav>
+
+<div class="shell">
+<main class="main">
+
+  <div class="pg on" id="page-dashboard">
+    <div class="ph">
+      <div><div class="pt">Command Center</div><div class="ps">Focus on the process. The rank will follow.</div></div>
+    </div>
+
+    <div class="hero-banner">
+      <div class="hero-countdown" id="countdown">—</div>
+      <div class="hero-label">Days Until GATE 2027</div>
+      <div class="hero-quote" id="motivational-quote">"The difference between ordinary and extraordinary is that little extra."</div>
+    </div>
+
+    <div class="mission-grid">
+      <div class="mission-card">
+        <div class="mission-title">🎯 Today's Tactical Mission</div>
+        <div class="mission-sub">System-generated tasks based on your weakest links.</div>
+        <div id="daily-mission-container"></div>
+      </div>
+      <div class="streak-card">
+        <div class="streak-title">🔥 7-Day Momentum</div>
+        <div class="streak-days" id="momentum-days">
+          <div class="streak-day">M</div><div class="streak-day">T</div><div class="streak-day">W</div>
+          <div class="streak-day">T</div><div class="streak-day">F</div><div class="streak-day">S</div><div class="streak-day">S</div>
+        </div>
+        <div class="streak-stat" id="total-q-hero">0</div>
+        <div class="streak-stat-lbl">Total Questions Dominated</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg" id="page-add-test">
+    <div class="ph">
+      <div><div class="pt">Add Test Entry</div><div class="ps">Log every question with subject, topic &amp; root cause</div></div>
+    </div>
+
+    <div class="fc">
+      <div class="fct">📋 Test Configuration</div>
+      <div class="g3">
+        <div class="fg">
+          <label class="fl">Test Date</label>
+          <input type="date" class="fi" id="t-date">
+        </div>
+        <div class="fg">
+          <label class="fl">Test Type</label>
+          <select class="fs" id="t-type" onchange="onTypeChange()">
+            <option value="Mock">Full Length Mock</option>
+            <option value="Subject">Single Subject Test</option>
+            <option value="Multi">Mixed Subject Practice</option>
+            <option value="Topic">Topic Level Practice</option>
+          </select>
+        </div>
+        <div class="fg" id="t-sub-wrap" style="display:none;">
+          <label class="fl">Target Subject</label>
+          <select class="fs" id="t-subject"></select>
+        </div>
+      </div>
+      <div class="g2" style="margin-top:12px;">
+        <div class="fg">
+          <label class="fl">Number of Questions</label>
+          <input type="number" class="fi" id="t-num" min="1" max="200" placeholder="e.g. 65">
+        </div>
+        <div style="display:flex;align-items:flex-end;">
+          <button class="btn btn-gold" onclick="generateRows()" style="width:100%;">⚡ Generate Grid</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="q-section" style="display:none;">
+      <div class="q-header">
+        <div class="q-col-lbl">#</div>
+        <div class="q-col-lbl">Subject</div>
+        <div class="q-col-lbl">Topic</div>
+        <div class="q-col-lbl">Type</div>
+        <div class="q-col-lbl">Marks</div>
+        <div class="q-col-lbl">Status</div>
+        <div class="q-col-lbl">Root Cause (if wrong/skipped)</div>
+      </div>
+      <div class="q-list" id="q-body"></div>
+
+      <div class="chip">
+        <div class="chip-item"><div class="chip-val" id="sc-net">0.00</div><div class="chip-lbl">Net Score</div></div>
+        <div class="chip-div"></div>
+        <div class="chip-item"><div class="chip-val" id="sc-tot" style="color:var(--d2)">0</div><div class="chip-lbl">Total Marks</div></div>
+        <div class="chip-div"></div>
+        <div class="chip-item"><div class="chip-val" id="sc-pct" style="color:var(--teal)">0%</div><div class="chip-lbl">Percentage</div></div>
+        <div class="chip-note">MCQ 1M → −0.33 &nbsp;|&nbsp; MCQ 2M → −0.66 &nbsp;|&nbsp; MSQ/NAT → no penalty</div>
+      </div>
+      <button class="btn btn-gold btn-full" id="save-test-btn" onclick="saveTest()" style="margin-top:12px;">💾 Save Test Data</button>
+    </div>
+  </div>
+
+  <div class="pg" id="page-test-history">
+    <div class="ph">
+      <div><div class="pt">Analytics &amp; History</div><div class="ps">Deep dive into your performance metrics</div></div>
+    </div>
+    <div class="sg">
+      <div class="sc" style="--ac:var(--blue)"><div class="si">❓</div><div class="sv" id="d-q">0</div><div class="sl">Total Qs</div></div>
+      <div class="sc" style="--ac:var(--teal)"><div class="si">🎯</div><div class="sv" id="d-acc">0%</div><div class="sl">Net Accuracy</div></div>
+      <div class="sc" style="--ac:var(--rose)"><div class="si">⚡</div><div class="sv" id="d-silly">0</div><div class="sl">Silly Loss</div></div>
+      <div class="sc" style="--ac:var(--violet)"><div class="si">📝</div><div class="sv" id="d-tests">0</div><div class="sl">Tests Logged</div></div>
+    </div>
+    <div class="cg">
+      <div class="cc"><div class="ct">Subject Performance (Net Marks %)</div><div class="cw"><canvas id="subChart"></canvas></div></div>
+      <div class="cc"><div class="ct">Root Cause Breakdown</div><div class="cw"><canvas id="causeChart"></canvas></div></div>
+    </div>
+    <div class="te">
+      <div class="te-head">
+        <div><div class="te-title">🔍 Micro-Topic Insights</div><div class="te-sub-txt">Per-topic breakdown inside any subject</div></div>
+        <div class="fg" style="min-width:185px;"><select class="fs" id="te-sub" onchange="renderTopicExplorer()"></select></div>
+      </div>
+      <div class="tw">
+        <table class="tbl" style="min-width:440px;">
+          <thead><tr><th>Topic</th><th>Net / Total</th><th>Performance</th><th>Root Cause</th></tr></thead>
+          <tbody id="te-body"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="sdiv">Test Archive</div>
+    <div id="hist-empty" class="empty" style="display:none;"><div class="empty-ico">📭</div><div class="empty-txt">No tests recorded yet.</div></div>
+    <div class="tw">
+      <table class="tbl" id="hist-tbl" style="display:none;min-width:540px;">
+        <thead><tr><th>Date</th><th>Type</th><th>Coverage</th><th>Score</th><th>Perf.</th><th>Action</th></tr></thead>
+        <tbody id="hist-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="pg" id="page-analysis">
+    <div class="ph">
+      <div><div class="pt">Subject Deep Dive</div><div class="ps">Strengths, danger zones, and digital short notes.</div></div>
+    </div>
+    <div id="an-empty" class="empty" style="display:none;"><div class="empty-ico">🔬</div><div class="empty-txt">Add tests to see subject analysis.</div></div>
+    <div class="sdiv">🏆 High-Yield Subjects</div>
+    <div class="ag" id="best-grid"></div>
+    <div class="sdiv" style="color:var(--rose);">⚠️ Danger Zone</div>
+    <div class="ag" id="worst-grid"></div>
+    <div class="sdiv">📊 All Subjects Overview</div>
+    <div class="tw">
+      <table class="tbl" style="min-width:460px;">
+        <thead><tr><th>Subject</th><th>Qs</th><th>Net Marks</th><th>Total</th><th>Performance</th><th>Status</th></tr></thead>
+        <tbody id="an-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="pg" id="page-revision">
+    <div class="ph">
+      <div><div class="pt">Spaced Revision</div><div class="ps">The algorithm brings back topics just before you forget them.</div></div>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.83rem;color:var(--teal);font-weight:600;">
+        <input type="checkbox" id="rev-focus-toggle" checked onchange="renderRevision()">
+        🎯 Focus Mode
+      </label>
+    </div>
+    <div class="srs-grid">
+      <div class="srs-card"><div class="srs-val" id="srs-active" style="color:var(--teal)">0</div><div class="srs-lbl">Active Subjects</div></div>
+      <div class="srs-card"><div class="srs-val" id="srs-dormant" style="color:var(--rose)">0</div><div class="srs-lbl">Ignored Subjects</div></div>
+      <div class="srs-card" style="border-color:rgba(245,158,11,.3);"><div class="srs-val" id="srs-due" style="color:var(--gold)">0</div><div class="srs-lbl">Overdue Topics</div></div>
+    </div>
+    <div id="rev-empty" class="empty" style="display:none;"><div class="empty-ico">✅</div><div class="empty-txt">All caught up! No topics due right now.</div></div>
+    <div class="tw">
+      <table class="tbl" id="rev-tbl" style="display:none;min-width:460px;">
+        <thead><tr><th>Subject</th><th>Topic</th><th>Difficulty</th><th>Count</th><th>Last Revised</th><th>Action</th></tr></thead>
+        <tbody id="rev-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="pg" id="page-mistakes">
+    <div class="ph">
+      <div><div class="pt">📓 Book of Mistakes</div><div class="ps">Review Incorrect AND Skipped questions. Data is stored locally.</div></div>
+      <div class="fg" style="min-width:185px;">
+        <select class="fs" id="mk-filter" onchange="renderMistakes()"><option value="All">All Subjects</option></select>
+      </div>
+    </div>
+    <div id="mk-empty" class="empty" style="display:none;"><div class="empty-ico">✅</div><div class="empty-txt">No mistakes/skipped for this filter. Keep it up!</div></div>
+    <div class="mg" id="mk-grid"></div>
+  </div>
+
+</main>
+</div>
+
+<div class="modal-bg" id="reset-modal">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-head">
+      <div class="modal-title" style="-webkit-text-fill-color:var(--rose);color:var(--rose);">⚠️ Factory Reset</div>
+      <button class="modal-close" id="reset-close">✕</button>
+    </div>
+    <div style="background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.25);border-radius:10px;padding:14px 16px;margin-bottom:16px;">
+      <p style="font-size:.82rem;color:var(--tx);line-height:1.6;margin-bottom:6px;"><strong style="color:var(--rose);">This will permanently delete:</strong></p>
+      <ul style="font-size:.79rem;color:var(--d2);padding-left:16px;line-height:2;">
+        <li>All test entries &amp; history</li>
+        <li>All revision logs &amp; SRS data</li>
+        <li>All notes &amp; attached files</li>
+      </ul>
+    </div>
+    <p style="font-size:.79rem;color:var(--d2);margin-bottom:10px;">Type <code style="background:rgba(248,113,113,.12);color:var(--rose);padding:2px 6px;border-radius:4px;font-family:var(--mono);">RESET</code> to confirm:</p>
+    <input type="text" id="reset-confirm-input" class="fi" placeholder="Type RESET here…" autocomplete="off" spellcheck="false" style="font-family:var(--mono);letter-spacing:.08em;">
+    <div style="display:flex;gap:10px;margin-top:13px;">
+      <button class="btn" id="reset-cancel-btn" style="flex:1;">Cancel</button>
+      <button class="btn btn-rose" id="reset-confirm-btn" style="flex:1;opacity:.4;pointer-events:none;" disabled>Delete Everything</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="del-test-modal">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-head">
+      <div class="modal-title" style="-webkit-text-fill-color:var(--rose);color:var(--rose);">🗑️ Delete Test</div>
+      <button class="modal-close" id="del-test-close">✕</button>
+    </div>
+    <div style="background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.25);border-radius:10px;padding:14px 16px;margin-bottom:16px;">
+      <p style="font-size:.82rem;color:var(--tx);line-height:1.6;margin-bottom:6px;"><strong style="color:var(--rose);">Are you sure?</strong></p>
+      <p style="font-size:.79rem;color:var(--d2);line-height:1.6;">This will permanently remove this test, subtract it from your stats, and delete any images you uploaded specifically for its questions.</p>
+    </div>
+    <p style="font-size:.79rem;color:var(--d2);margin-bottom:10px;">Type <code style="background:rgba(248,113,113,.12);color:var(--rose);padding:2px 6px;border-radius:4px;font-family:var(--mono);">DELETE</code> to confirm:</p>
+    <input type="text" id="del-test-input" class="fi" placeholder="Type DELETE here…" autocomplete="off" spellcheck="false" style="font-family:var(--mono);letter-spacing:.08em;">
+    <div style="display:flex;gap:10px;margin-top:13px;">
+      <button class="btn" id="del-test-cancel-btn" style="flex:1;">Cancel</button>
+      <button class="btn btn-rose" id="del-test-btn" style="flex:1;opacity:.4;pointer-events:none;" disabled>Remove Test</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title" id="m-title">Test Breakdown</div>
+      <button class="modal-close" id="m-close">✕</button>
+    </div>
+    <div class="m-score-row" id="m-score"></div>
+    <div class="sdiv">Subject-wise Post-Mortem</div>
+    <div class="tw">
+      <table class="tbl" style="min-width:440px;">
+        <thead><tr><th>Subject</th><th>Qs Asked</th><th>Total Marks</th><th>Net Scored</th><th>✓ / ✗ / Skip</th></tr></thead>
+        <tbody id="m-subj"></tbody>
+      </table>
+    </div>
+    <div class="log-2">
+      <div><div class="sdiv" style="color:var(--rose);">Error / Skipped Log</div><div class="log-box" id="m-err"></div></div>
+      <div><div class="sdiv" style="color:var(--teal);">Success Log</div><div class="log-box" id="m-ok"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="viewer-modal">
+  <div class="viewer-box">
+    <div class="modal-head" style="margin-bottom:12px;flex-shrink:0;">
+      <div class="modal-title" id="viewer-title" style="-webkit-text-fill-color:var(--teal);color:var(--teal);">Document Viewer</div>
+      <button class="modal-close" id="viewer-close">✕</button>
+    </div>
+    <div class="viewer-content" id="viewer-content"></div>
+  </div>
+</div>
+
+<div id="dynamic-datalists" style="display:none;"></div>
+
+<script>
+// --- CORE CSE SYLLABUS & MOTIVATION ---
+const SUBS=['Programming & Data Structures','Algorithms','Operating Systems','DBMS',
+  'Computer Networks','Theory of Computation','Compiler Design','Digital Logic',
+  'Computer Organization','Discrete Mathematics','Engineering Mathematics','Aptitude'];
+
+const CSE_SYLLABUS = {
+  'Programming & Data Structures': ['C Programming', 'Arrays', 'Stacks', 'Queues', 'Linked Lists', 'Trees', 'Binary Search Trees', 'Binary Heaps', 'Graphs'],
+  'Algorithms': ['Searching', 'Sorting', 'Hashing', 'Asymptotic worst case time and space complexity', 'Greedy algorithms', 'Dynamic programming', 'Divide-and-conquer', 'Graph traversals', 'Minimum Spanning Trees', 'Shortest Paths'],
+  'Operating Systems': ['System calls', 'Processes', 'Threads', 'Inter-process communication', 'Concurrency and synchronization', 'Deadlock', 'CPU and I/O scheduling', 'Memory management and virtual memory', 'File systems'],
+  'DBMS': ['ER-model', 'Relational model', 'Relational algebra', 'Tuple calculus', 'SQL', 'Integrity constraints', 'Normal forms', 'File organization', 'Indexing', 'B and B+ trees', 'Transactions and concurrency control'],
+  'Computer Networks': ['Concept of layering', 'LAN technologies', 'Ethernet', 'Flow and error control techniques', 'Switching', 'IPv4 and IPv6', 'Routers and routing algorithms', 'Distance vector routing', 'Link state routing', 'TCP and UDP', 'Sockets', 'Congestion control', 'Application layer protocols', 'DNS', 'SMTP', 'POP', 'FTP', 'HTTP', 'Basics of Wi-Fi', 'Network security'],
+  'Theory of Computation': ['Regular expressions', 'Finite automata', 'Context-free grammars', 'Push-down automata', 'Regular and context-free languages', 'Pumping lemma', 'Turing machines', 'Undecidability'],
+  'Compiler Design': ['Lexical analysis', 'Parsing', 'Syntax-directed translation', 'Runtime environments', 'Intermediate code generation', 'Local optimization', 'Data flow analyses', 'Constant propagation', 'Liveness analysis', 'Common subexpression elimination'],
+  'Digital Logic': ['Boolean algebra', 'Combinational circuits', 'Sequential circuits', 'Minimization', 'Number representations', 'Computer arithmetic', 'Fixed and floating point'],
+  'Computer Organization': ['Machine instructions and addressing modes', 'ALU', 'Data-path and control unit', 'Instruction pipelining', 'Pipeline hazards', 'Memory hierarchy', 'Cache memory', 'Main memory', 'Secondary storage', 'I/O interface', 'Interrupt and DMA mode'],
+  'Discrete Mathematics': ['Propositional logic', 'First order logic', 'Sets', 'Relations', 'Functions', 'Partial orders and lattices', 'Monoids', 'Graphs', 'Connectivity', 'Matching', 'Coloring', 'Combinatorics', 'Counting', 'Recurrence relations', 'Generating functions'],
+  'Engineering Mathematics': ['Matrices', 'Determinants', 'System of linear equations', 'Eigenvalues and eigenvectors', 'LU decomposition', 'Calculus: limits, continuity and differentiability', 'Maxima and minima', 'Mean value theorem', 'Integration', 'Random variables', 'Uniform, normal, exponential, poisson and binomial distributions', 'Mean, median, mode and standard deviation', 'Conditional probability', 'Bayes theorem'],
+  'Aptitude': ['Verbal Ability', 'Quantitative Aptitude', 'Analytical Aptitude', 'Spatial Aptitude']
+};
+
+const CAUSES=['Silly Mistake / Calc Error','Conceptual Gap','Forgot Formula','Misread Question','Time Pressure'];
+const UNATT_CAUSES=['Did not know concept','Ran out of time','Calculations too long','Out of syllabus/Wrong Q','Panic / Blanked out'];
+const QUOTES=[
+  'घायल हूँ, इसलिए घातक हूँ।',
+  'बलिदान परम धर्म',
+  'जब तक तोड़ेंगे नहीं, तब तक छोड़ेंगे नहीं।',
+  'Risk hai toh Ishq hai.',
+  'Pain is temporary. AIR is permanent.',
+  'Your competition is sleeping right now. Wake up.',
+  'Life is a matter of choices, and every choice you make makes you, make a choice right now.',
+];
+
+let db={tests:[],topics:{},revLog:{},mkNotes:{},activity:{}};
+let CH={};
+let currentBlobUrl=null;
+let editingTestId=null;
+
+function localDate(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+// ── INDEXED DB ──
+const FileStore={
+  db:null,
+  init(){
+    return new Promise((res,rej)=>{
+      const r=indexedDB.open('gateCSEFilesDB_2027',1);
+      r.onupgradeneeded=e=>e.target.result.createObjectStore('files');
+      r.onsuccess=e=>{this.db=e.target.result;res();};
+      r.onerror=e=>rej(e);
+    });
+  },
+  save(id,data){if(!this.db)return;this.db.transaction('files','readwrite').objectStore('files').put(data,id);},
+  get(id){return new Promise(res=>{
+    if(!this.db)return res(null);
+    const r=this.db.transaction('files','readonly').objectStore('files').get(id);
+    r.onsuccess=()=>res(r.result);r.onerror=()=>res(null);
+  });},
+  delete(id){if(!this.db)return;this.db.transaction('files','readwrite').objectStore('files').delete(id);},
+  clear(){if(!this.db)return;this.db.transaction('files','readwrite').objectStore('files').clear();},
+  
+  // NEW: Get ALL files for export
+  getAllFiles() {
+    return new Promise((res) => {
+      if(!this.db) return res({});
+      const tx = this.db.transaction('files', 'readonly');
+      const store = tx.objectStore('files');
+      const req = store.getAll();
+      const reqKeys = store.getAllKeys();
+      
+      req.onsuccess = () => {
+        reqKeys.onsuccess = () => {
+          let fileDict = {};
+          reqKeys.result.forEach((key, idx) => {
+            fileDict[key] = req.result[idx];
+          });
+          res(fileDict);
+        }
+      };
+    });
+  }
+};
+
+// ── INIT ──
+async function init(){
+  const raw=localStorage.getItem('gateCSETracker_2027');
+  if(raw){
+    db=JSON.parse(raw);
+    if(!db.mkNotes)db.mkNotes={};
+    if(!db.revLog)db.revLog={};
+    if(!db.activity)db.activity={};
+    
+    Object.keys(CSE_SYLLABUS).forEach(s => {
+      if(!db.topics[s]) db.topics[s] = [];
+      CSE_SYLLABUS[s].forEach(top => {
+        if(!db.topics[s].includes(top)) db.topics[s].push(top);
+      });
+    });
+  } else {
+    db.topics = JSON.parse(JSON.stringify(CSE_SYLLABUS));
+    save();
+  }
+  
+  try { await FileStore.init(); } catch(e) { console.warn('IndexedDB unavailable, file attachments disabled:', e); }
+
+  document.getElementById('t-date').valueAsDate=new Date();
+  document.getElementById('motivational-quote').textContent=QUOTES[Math.floor(Math.random()*QUOTES.length)];
+  populateSels();countdownFn();bindNav();bindMobile();
+  
+  await refreshAll();
+}
+
+function save(){localStorage.setItem('gateCSETracker_2027',JSON.stringify(db));}
+
+function fmtTopic(s){return s.trim().toLowerCase().split(/\s+/).map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');}
+
+function populateSels(){
+  const o=Object.keys(db.topics).map(s=>`<option value="${s}">${s}</option>`).join('');
+  ['t-subject','te-sub'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=o;});
+  document.getElementById('mk-filter').innerHTML=`<option value="All">All Subjects</option>`+o;
+}
+
+function countdownFn(){
+  const d=Math.max(0,Math.ceil((new Date('2027-02-01')-new Date())/86400000));
+  document.getElementById('countdown').textContent=d;
+}
+
+function bindNav(){
+  document.querySelectorAll('.ni[data-tab]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.ni[data-tab]').forEach(b=>b.classList.remove('on'));
+      document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+      btn.classList.add('on');
+      document.getElementById('page-'+btn.dataset.tab).classList.add('on');
+      refreshAll();
+    });
+  });
+
+  // Export Data Command
+  document.getElementById('exportBtn').addEventListener('click', async () => {
+    try {
+      const btn = document.getElementById('exportBtn');
+      btn.innerHTML = `<span class="ico">⏳</span> Packing...`;
+      
+      const fileData = await FileStore.getAllFiles();
+      const backupData = {
+        meta: { version: 5.1, date: new Date().toISOString(), type: 'gateCSE_backup' },
+        localStorageDb: db,
+        indexedDbFiles: fileData
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", `GATE_CSE_Backup_${localDate()}.json`);
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+      
+      btn.innerHTML = `<span class="ico">✅</span> Exported`;
+      setTimeout(() => btn.innerHTML = `<span class="ico">💾</span> Backup Data`, 3000);
+    } catch(e) {
+      alert('Error exporting data: ' + e.message);
+    }
+  });
+
+  // Import Data Command
+  document.getElementById('importInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const imported = JSON.parse(event.target.result);
+        
+        if(!imported.meta || imported.meta.type !== 'gateCSE_backup') {
+          alert("Invalid backup file. Please select a valid GATE Tracker backup JSON.");
+          return;
+        }
+
+        if(confirm("WARNING: This will overwrite ALL your current data with the backup. Are you sure?")) {
+          // 1. Restore localStorage data
+          db = imported.localStorageDb;
+          save();
+
+          // 2. Restore IndexedDB files
+          if(imported.indexedDbFiles) {
+            FileStore.clear(); // wipe old files first
+            for (const [id, fileData] of Object.entries(imported.indexedDbFiles)) {
+              await FileStore.save(id, fileData);
+            }
+          }
+
+          alert("✅ Backup Restored Successfully! Refreshing app...");
+          window.location.reload();
+        }
+      } catch(err) {
+        alert("Error parsing backup file: " + err.message);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = ''; // Reset input
+  });
+
+  // Factory Reset Modal
+  document.getElementById('clearBtn').addEventListener('click',()=>{
+    document.getElementById('reset-confirm-input').value='';
+    const rb=document.getElementById('reset-confirm-btn');
+    rb.disabled=true;rb.style.opacity='.4';rb.style.pointerEvents='none';
+    document.getElementById('reset-modal').classList.add('open');
+    setTimeout(()=>document.getElementById('reset-confirm-input').focus(),120);
+  });
+  const rModal=document.getElementById('reset-modal');
+  const rInput=document.getElementById('reset-confirm-input');
+  const rBtn=document.getElementById('reset-confirm-btn');
+  const closeReset=()=>rModal.classList.remove('open');
+  document.getElementById('reset-close').addEventListener('click',closeReset);
+  document.getElementById('reset-cancel-btn').addEventListener('click',closeReset);
+  rModal.addEventListener('click',e=>{if(e.target===rModal)closeReset();});
+  rInput.addEventListener('input',()=>{
+    const ok=rInput.value.trim()==='RESET';
+    rBtn.disabled=!ok;rBtn.style.opacity=ok?'1':'.4';rBtn.style.pointerEvents=ok?'auto':'none';
+  });
+  rBtn.addEventListener('click',()=>{
+    if(rInput.value.trim()!=='RESET')return;
+    closeReset();localStorage.removeItem('gateCSETracker_2027');FileStore.clear();
+    db={tests:[],topics:{},revLog:{},mkNotes:{},activity:{}};
+    db.topics = JSON.parse(JSON.stringify(CSE_SYLLABUS));
+    save();init();
+  });
+
+  // Single Test Delete Modal
+  const dtModal=document.getElementById('del-test-modal');
+  const dtInput=document.getElementById('del-test-input');
+  const dtBtn=document.getElementById('del-test-btn');
+  const closeDelTest=()=>dtModal.classList.remove('open');
+  document.getElementById('del-test-close').addEventListener('click',closeDelTest);
+  document.getElementById('del-test-cancel-btn').addEventListener('click',closeDelTest);
+  dtModal.addEventListener('click',e=>{if(e.target===dtModal)closeDelTest();});
+  dtInput.addEventListener('input',()=>{
+    const ok=dtInput.value.trim()==='DELETE';
+    dtBtn.disabled=!ok;dtBtn.style.opacity=ok?'1':'.4';dtBtn.style.pointerEvents=ok?'auto':'none';
+  });
+  dtBtn.addEventListener('click',()=>{
+    if(dtInput.value.trim()!=='DELETE')return;
+    executeDeleteTest();
+    closeDelTest();
+  });
+
+  const modal=document.getElementById('modal');
+  document.getElementById('m-close').addEventListener('click',()=>modal.classList.remove('open'));
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open');});
+
+  const vModal=document.getElementById('viewer-modal');
+  const closeViewer=()=>{
+    vModal.classList.remove('open');
+    document.getElementById('viewer-content').innerHTML='';
+    if(currentBlobUrl){URL.revokeObjectURL(currentBlobUrl);currentBlobUrl=null;}
+  };
+  document.getElementById('viewer-close').addEventListener('click',closeViewer);
+  vModal.addEventListener('click',e=>{if(e.target===vModal)closeViewer();});
+
+  document.addEventListener('keydown',e=>{
+    if(e.key!=='Escape')return;
+    [modal,vModal,rModal,dtModal].forEach(m=>m.classList.remove('open'));
+    closeViewer();
+  });
+}
+
+function bindMobile(){
+  const ham=document.getElementById('hamBtn'),ovl=document.getElementById('overlay'),sb=document.getElementById('sidebar');
+  const open=()=>{sb.classList.add('open');ovl.classList.add('show');};
+  const close=()=>{sb.classList.remove('open');ovl.classList.remove('show');};
+  ham.addEventListener('click',open);
+  ovl.addEventListener('click',close);
+  document.querySelectorAll('.ni').forEach(b=>b.addEventListener('click',()=>{if(window.innerWidth<=640)close();}));
+}
+
+function onTypeChange(){
+  const t=document.getElementById('t-type').value;
+  document.getElementById('t-sub-wrap').style.display=(t==='Subject'||t==='Topic')?'block':'none';
+}
+
+function updateRowDL(el) {
+  const row = el.closest('.q-row');
+  if(!row) return;
+  const sub = row.querySelector('.q-sub').value;
+  const topInput = row.querySelector('.q-top');
+  if(!topInput) return;
+  
+  const dlId = topInput.getAttribute('list');
+  const dl = document.getElementById(dlId);
+  if(!dl) return;
+  
+  dl.innerHTML = '';
+  if(sub && db.topics[sub]) {
+    dl.innerHTML = db.topics[sub].map(t => `<option value="${t}">`).join('');
+  }
+}
+
+function generateRows(){
+  editingTestId = null;
+  document.getElementById('save-test-btn').innerText = "💾 Save Test Data";
+
+  const num=parseInt(document.getElementById('t-num').value);
+  if(!num||num<1||num>200)return alert('Enter a valid number (1–200).');
+  const type=document.getElementById('t-type').value;
+  const fix=(type==='Subject'||type==='Topic')?document.getElementById('t-subject').value:null;
+  const sopts=Object.keys(db.topics).map(s=>`<option value="${s}">${s}</option>`).join('');
+  const container=document.getElementById('q-body');
+  container.innerHTML='';
+
+  const uid = Date.now();
+  const dlContainer = document.getElementById('dynamic-datalists');
+  dlContainer.innerHTML = '';
+
+  for(let i=1;i<=num;i++){
+    const row=document.createElement('div');
+    row.className='q-row row-u';
+    
+    const dlId = `tdl_${uid}_${i}`;
+    dlContainer.innerHTML += `<datalist id="${dlId}"></datalist>`;
+
+    const subField=fix
+      ?`<input class="q-inp q-sub" value="${fix}" readonly>`
+      :`<select class="q-sel q-sub" onchange="updateRowDL(this)"><option value="" disabled selected>Subject…</option>${sopts}</select>`;
+
+    row.innerHTML=`
+      <div class="q-num">Q${i}</div>
+      <div>${subField}</div>
+      <div><input class="q-inp q-top" list="${dlId}" placeholder="Topic / concept…" onfocus="updateRowDL(this)"></div>
+      <div><select class="q-sel q-type" onchange="calcScore()">
+        <option value="MCQ">MCQ</option>
+        <option value="MSQ">MSQ</option>
+        <option value="NAT">NAT</option>
+      </select></div>
+      <div><select class="q-sel q-marks" onchange="calcScore()">
+        <option value="1">1 Mark</option>
+        <option value="2">2 Marks</option>
+      </select></div>
+      <div><select class="q-sel q-status st-u" onchange="onStatus(this)">
+        <option value="" disabled selected>— Status —</option>
+        <option value="Unattempted">⊘ Skipped</option>
+        <option value="Correct">✓ Correct</option>
+        <option value="Incorrect">✗ Incorrect</option>
+      </select></div>
+      <div><select class="q-sel q-cause">
+      </select></div>
+    `;
+    row.querySelector('.q-cause').classList.remove('visible');
+    container.appendChild(row);
+  }
+  
+  if(fix) { document.querySelectorAll('#q-body .q-top').forEach(inp => updateRowDL(inp)); }
+  
+  document.getElementById('q-section').style.display='block';
+  calcScore();
+}
+
+function onStatus(sel){
+  const v=sel.value;
+  sel.className='q-sel q-status'+(v==='Correct'?' st-c':v==='Incorrect'?' st-i':' st-u');
+  const row=sel.closest('.q-row');
+  row.className='q-row'+(v==='Correct'?' row-c':v==='Incorrect'?' row-i':' row-u');
+  
+  const cause=row.querySelector('.q-cause');
+  
+  if(v==='Incorrect'){
+    cause.innerHTML='<option value="None">— Error Reason —</option>'+CAUSES.map(c=>`<option value="${c}">${c}</option>`).join('');
+    cause.classList.add('visible');
+  } else if(v==='Unattempted'){
+    cause.innerHTML='<option value="None">— Skip Reason —</option>'+UNATT_CAUSES.map(c=>`<option value="${c}">${c}</option>`).join('');
+    cause.classList.add('visible');
+  } else {
+    cause.classList.remove('visible');
+    cause.innerHTML='';
+  }
+  calcScore();
+}
+
+function calcScore(){
+  let net=0,tot=0;
+  document.querySelectorAll('#q-body .q-row').forEach(r=>{
+    const m=parseInt(r.querySelector('.q-marks')?.value||1);
+    const tp=r.querySelector('.q-type')?.value;
+    const st=r.querySelector('.q-status')?.value;
+    if(!st) return; 
+    
+    tot+=m; 
+    if(st==='Correct')net+=m;
+    else if(st==='Incorrect'&&tp==='MCQ')net-=(m===1?0.33:0.66);
+  });
+  document.getElementById('sc-net').textContent=net.toFixed(2);
+  document.getElementById('sc-tot').textContent=tot;
+  const p=tot>0?((net/tot)*100).toFixed(1):'0.0';
+  document.getElementById('sc-pct').textContent=p+'%';
+  document.getElementById('sc-pct').style.color=net<0?'var(--rose)':parseFloat(p)>60?'var(--teal)':'var(--gold)';
+}
+
+function saveTest(){
+  const rows=document.querySelectorAll('#q-body .q-row');
+  if(!rows.length)return alert('Generate the grid first.');
+  let qs=[],ok=true;
+  
+  let uid = editingTestId ? editingTestId : Date.now();
+
+  rows.forEach((r,i)=>{
+    const sub=r.querySelector('.q-sub').value;
+    let rawTop=r.querySelector('.q-top').value.trim();
+    const st=r.querySelector('.q-status').value;
+    
+    if(!sub || !rawTop || !st) { ok=false; return; }
+    
+    const fmt=fmtTopic(rawTop);
+    const existing=db.topics[sub]?.find(t=>t.toLowerCase()===fmt.toLowerCase());
+    const finalTop=existing||fmt;
+    const tp=r.querySelector('.q-type').value;
+    const mk=parseInt(r.querySelector('.q-marks').value);
+    
+    const ca=(st==='Incorrect'||st==='Unattempted') ? r.querySelector('.q-cause').value : 'N/A';
+    
+    if(sub&&finalTop&&!db.topics[sub]?.includes(finalTop)){if(!db.topics[sub])db.topics[sub]=[];db.topics[sub].push(finalTop);}
+    const rk=`${sub}|${finalTop}`;if(!db.revLog[rk])db.revLog[rk]={lastRev:null,count:0,difficulty:'Medium'};
+    qs.push({id:`${uid}_${i}`,q:i+1,sub,top:finalTop,tp,mk,st,ca});
+  });
+  
+  if(!ok)return alert('Fill all Subject, Topic, and Status fields before saving.');
+  
+  const testDate=document.getElementById('t-date').value;
+  const net=parseFloat(document.getElementById('sc-net').textContent);
+  const tot=parseInt(document.getElementById('sc-tot').textContent);
+  
+  const newTestObj = {id:uid,date:testDate,type:document.getElementById('t-type').value,net,tot,qs};
+
+  if(editingTestId) {
+    const idx = db.tests.findIndex(x=>x.id === editingTestId);
+    if(idx > -1) {
+      db.activity[db.tests[idx].date] -= db.tests[idx].qs.length;
+      db.tests[idx] = newTestObj;
+    }
+    editingTestId = null;
+    document.getElementById('save-test-btn').innerText = "💾 Save Test Data";
+  } else {
+    db.tests.push(newTestObj);
+  }
+
+  db.activity[testDate]=(db.activity[testDate]||0)+qs.length;
+  save();
+  
+  document.getElementById('q-section').style.display='none';
+  document.getElementById('q-body').innerHTML='';
+  document.getElementById('t-num').value='';
+  document.querySelectorAll('.ni[data-tab]').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelector('.ni[data-tab="test-history"]').classList.add('on');
+  document.getElementById('page-test-history').classList.add('on');
+  refreshAll();
+  alert('✅ Data logged successfully!');
+}
+
+function daysAgo(d){
+  if(!d)return Infinity;
+  const today=new Date();today.setHours(0,0,0,0);
+  const past=new Date(d+'T00:00:00');
+  return Math.max(0,Math.floor((today-past)/86400000));
+}
+
+// ── EDIT & DELETE TEST ──
+function editTest(id) {
+  const t = db.tests.find(x=>x.id===id);
+  if(!t) return;
+  editingTestId = id;
+
+  document.querySelectorAll('.ni[data-tab]').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelector('.ni[data-tab="add-test"]').classList.add('on');
+  document.getElementById('page-add-test').classList.add('on');
+
+  document.getElementById('t-date').value = t.date;
+  document.getElementById('t-type').value = t.type;
+  onTypeChange();
+  if(t.type==='Subject' || t.type==='Topic') document.getElementById('t-subject').value = t.qs[0].sub;
+  document.getElementById('t-num').value = t.qs.length;
+
+  const sopts=Object.keys(db.topics).map(s=>`<option value="${s}">${s}</option>`).join('');
+  const container=document.getElementById('q-body');
+  container.innerHTML='';
+  
+  const dlContainer = document.getElementById('dynamic-datalists');
+  dlContainer.innerHTML = '';
+
+  t.qs.forEach((q, idx) => {
+    const isFix = (t.type==='Subject'||t.type==='Topic');
+    
+    const dlId = `tdl_edit_${id}_${idx}`;
+    dlContainer.innerHTML += `<datalist id="${dlId}"></datalist>`;
+    
+    const subField = isFix
+      ? `<input class="q-inp q-sub" value="${q.sub}" readonly>`
+      : `<select class="q-sel q-sub" onchange="updateRowDL(this)"><option value="" disabled>Subject…</option>${sopts}</select>`;
+
+    const stClass = q.st==='Correct'?'c':q.st==='Incorrect'?'i':'u';
+    const row=document.createElement('div');
+    row.className='q-row row-'+stClass;
+
+    let causeOptions = '';
+    let isVis = false;
+    if(q.st === 'Incorrect') {
+      causeOptions = '<option value="None">— Error reason —</option>' + CAUSES.map(c=>`<option value="${c}" ${q.ca===c?'selected':''}>${c}</option>`).join('');
+      isVis = true;
+    } else if(q.st === 'Unattempted') {
+      causeOptions = '<option value="None">— Skip reason —</option>' + UNATT_CAUSES.map(c=>`<option value="${c}" ${q.ca===c?'selected':''}>${c}</option>`).join('');
+      isVis = true;
+    }
+
+    row.innerHTML=`
+      <div class="q-num">Q${q.q}</div>
+      <div>${subField}</div>
+      <div><input class="q-inp q-top" list="${dlId}" placeholder="Topic / concept…" value="${q.top}" onfocus="updateRowDL(this)"></div>
+      <div><select class="q-sel q-type" onchange="calcScore()">
+        <option value="MCQ" ${q.tp==='MCQ'?'selected':''}>MCQ</option>
+        <option value="MSQ" ${q.tp==='MSQ'?'selected':''}>MSQ</option>
+        <option value="NAT" ${q.tp==='NAT'?'selected':''}>NAT</option>
+      </select></div>
+      <div><select class="q-sel q-marks" onchange="calcScore()">
+        <option value="1" ${q.mk===1?'selected':''}>1 Mark</option>
+        <option value="2" ${q.mk===2?'selected':''}>2 Marks</option>
+      </select></div>
+      <div><select class="q-sel q-status st-${stClass}" onchange="onStatus(this)">
+        <option value="" ${!q.st?'selected':''} disabled>— Status —</option>
+        <option value="Unattempted" ${q.st==='Unattempted'?'selected':''}>⊘ Skipped</option>
+        <option value="Correct" ${q.st==='Correct'?'selected':''}>✓ Correct</option>
+        <option value="Incorrect" ${q.st==='Incorrect'?'selected':''}>✗ Incorrect</option>
+      </select></div>
+      <div><select class="q-sel q-cause ${isVis?'visible':''}">
+        ${causeOptions}
+      </select></div>
+    `;
+    if(!isFix) {
+      const sel = row.querySelector('.q-sub');
+      if(sel) sel.value = q.sub;
+    }
+    container.appendChild(row);
+  });
+  
+  document.querySelectorAll('#q-body .q-top').forEach(inp => updateRowDL(inp));
+
+  document.getElementById('q-section').style.display='block';
+  document.getElementById('save-test-btn').innerText = "🔄 Update Test Data";
+  calcScore();
+}
+
+let testToDelete = null;
+function confirmDeleteTest(id) {
+  testToDelete = id;
+  document.getElementById('del-test-input').value = '';
+  const btn = document.getElementById('del-test-btn');
+  btn.disabled = true; btn.style.opacity = '.4'; btn.style.pointerEvents = 'none';
+  document.getElementById('del-test-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('del-test-input').focus(),120);
+}
+
+function executeDeleteTest() {
+  const idx = db.tests.findIndex(x=>x.id === testToDelete);
+  if(idx > -1) {
+    const t = db.tests[idx];
+    db.activity[t.date] -= t.qs.length;
+    t.qs.forEach(q => {
+      FileStore.delete(q.id + '_q');
+      FileStore.delete(q.id + '_a');
+      delete db.mkNotes[q.id];
+    });
+    db.tests.splice(idx, 1);
+    save();
+    refreshAll();
+  }
+}
+
+// ── COMMAND CENTER ──
+function renderCommandCenter(){
+  let tQ=0;db.tests.forEach(t=>tQ+=t.qs.length);
+  document.getElementById('total-q-hero').textContent=tQ;
+
+  const dc=document.getElementById('momentum-days');
+  let h='';
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const ds=localDate(d);
+    const dn=d.toLocaleDateString('en-US',{weekday:'narrow'});
+    const act=(db.activity[ds]>0)?'active':'';
+    h+=`<div class="streak-day ${act}" title="${db.activity[ds]||0} Qs on ${ds}">${dn}</div>`;
+  }
+  dc.innerHTML=h;
+
+  let urgent=[];
+  Object.keys(db.topics).forEach(sub=>db.topics[sub].forEach(top=>{
+    const r=db.revLog[`${sub}|${top}`];if(!r)return;
+    const days=daysAgo(r.lastRev),thr=r.difficulty==='Hard'?3:r.difficulty==='Easy'?15:7;
+    if(days>=thr)urgent.push({sub,top,score:(r.difficulty==='Hard'?300:r.difficulty==='Medium'?200:100)+days});
+  }));
+  urgent.sort((a,b)=>b.score-a.score);
+
+  const mc=document.getElementById('daily-mission-container');
+  if(!urgent.length){
+    mc.innerHTML=`<div class="mission-item" style="border-color:var(--teal);">
+      <span class="m-ico">✅</span>
+      <div class="m-txt"><b>All caught up!</b><span>Solve 20 fresh questions today.</span></div></div>`;
+  } else {
+    mc.innerHTML=urgent.slice(0,3).map(u=>`
+      <div class="mission-item">
+        <span class="m-ico">🎯</span>
+        <div class="m-txt"><b>${u.sub}</b><span>Revise: ${u.top}</span></div>
+      </div>`).join('');
+  }
+}
+
+// ── STATS ENGINES ──
+function subjectStats(){
+  const s={};
+  db.tests.forEach(t=>t.qs.forEach(q=>{
+    if(!s[q.sub])s[q.sub]={asked:0,tot:0,net:0,cor:0,wr:0,un:0};
+    s[q.sub].asked++;
+    s[q.sub].tot+=q.mk; 
+    if(q.st==='Correct'){s[q.sub].net+=q.mk;s[q.sub].cor++;}
+    else if(q.st==='Incorrect'){if(q.tp==='MCQ')s[q.sub].net-=(q.mk===1?0.33:0.66);s[q.sub].wr++;}
+    else s[q.sub].un++;
+  }));
+  Object.values(s).forEach(v=>v.pct=v.tot>0?(v.net/v.tot)*100:0);
+  return s;
+}
+
+function topicStats(tSub){
+  const s={};
+  db.tests.forEach(t=>t.qs.forEach(q=>{
+    if(q.sub!==tSub)return;
+    if(!s[q.top])s[q.top]={tot:0,net:0,causes:{}};
+    s[q.top].tot+=q.mk; 
+    if(q.st==='Correct')s[q.top].net+=q.mk;
+    else if(q.st==='Incorrect'){
+      if(q.tp==='MCQ')s[q.top].net-=(q.mk===1?0.33:0.66);
+      if(q.ca&&q.ca!=='N/A'&&q.ca!=='None')s[q.top].causes[q.ca]=(s[q.top].causes[q.ca]||0)+1;
+    }
+  }));
+  return Object.keys(s).map(top=>{
+    const v=s[top],pct=v.tot>0?(v.net/v.tot)*100:0;
+    const maxC=Object.entries(v.causes).sort((a,b)=>b[1]-a[1])[0]?.[0]||'None';
+    return{top,net:v.net,tot:v.tot,pct,maxC};
+  }).sort((a,b)=>a.pct-b.pct);
+}
+
+// ── ANALYTICS & HISTORY ──
+function renderAnalyticsHistory(){
+  let tQ=0,netAll=0,totAll=0,silly=0,cm={};
+  const ss=subjectStats();
+  db.tests.forEach(t=>{
+    tQ+=t.qs.length;netAll+=t.net;
+    t.qs.forEach(q=>{
+      totAll+=q.mk; 
+      if(q.st==='Incorrect'){
+        const p=q.tp==='MCQ'?(q.mk===1?0.33:0.66):0;
+        if(q.ca==='Silly Mistake / Calc Error'||q.ca==='Misread Question')silly+=q.mk+p;
+        if(q.ca&&q.ca!=='N/A'&&q.ca!=='None')cm[q.ca]=(cm[q.ca]||0)+1;
+      }
+    });
+  });
+  const pct=totAll>0?((netAll/totAll)*100).toFixed(1):0;
+  document.getElementById('d-q').textContent=tQ;
+  document.getElementById('d-acc').textContent=pct+'%';
+  document.getElementById('d-silly').textContent=silly.toFixed(2);
+  document.getElementById('d-tests').textContent=db.tests.length;
+  renderSubChart(ss);renderCauseChart(cm);renderTopicExplorer();
+
+  const body=document.getElementById('hist-body'),empty=document.getElementById('hist-empty'),tbl=document.getElementById('hist-tbl');
+  if(!db.tests.length){empty.style.display='flex';tbl.style.display='none';return;}
+  empty.style.display='none';tbl.style.display='table';
+  body.innerHTML=[...db.tests].reverse().map(t=>{
+    const subs=[...new Set(t.qs.map(q=>q.sub))].slice(0,2).join(', ');
+    const tPct=t.tot>0?((t.net/t.tot)*100).toFixed(1):0;
+    const cls=tPct<40?'br':tPct<65?'bg':'bt';
+    return`<tr>
+      <td><span style="font-family:var(--mono);font-size:.76rem;">${t.date}</span></td>
+      <td><span class="bdg bb">${t.type}</span></td>
+      <td style="font-size:.77rem;color:var(--d2);">${subs}${t.qs.length>2?'…':''}</td>
+      <td><span style="font-family:var(--mono);font-size:.8rem;">${t.net.toFixed(2)} / ${t.tot}</span></td>
+      <td><span class="bdg ${cls}">${tPct}%</span></td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-teal btn-sm" onclick="viewTest(${t.id})" title="Analyze Test">👁️</button>
+          <button class="btn btn-blue btn-sm" onclick="editTest(${t.id})" title="Edit Test">✏️</button>
+          <button class="btn btn-rose btn-sm" onclick="confirmDeleteTest(${t.id})" title="Delete Test">🗑️</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderSubChart(ss){
+  const ctx=document.getElementById('subChart').getContext('2d');if(CH.sub)CH.sub.destroy();
+  const lb=[],da=[],bg=[];
+  Object.keys(ss).filter(s=>ss[s].asked>0).forEach(s=>{
+    lb.push(s.length>13?s.slice(0,11)+'…':s);da.push(+ss[s].pct.toFixed(1));
+    bg.push(ss[s].pct<0?'rgba(248,113,113,.65)':ss[s].pct<50?'rgba(245,158,11,.65)':'rgba(20,184,166,.65)');
+  });
+  CH.sub=new Chart(ctx,{type:'bar',data:{labels:lb,datasets:[{data:da,backgroundColor:bg,borderRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{y:{ticks:{color:'#6b7ba4'},grid:{color:'rgba(255,255,255,.04)'}},x:{ticks:{color:'#6b7ba4',font:{size:10}},grid:{color:'rgba(255,255,255,.03)'}}},
+      plugins:{legend:{display:false}}}});
+}
+
+function renderCauseChart(cm){
+  const ctx=document.getElementById('causeChart').getContext('2d');if(CH.cause)CH.cause.destroy();
+  const k=Object.keys(cm);if(!k.length)return;
+  CH.cause=new Chart(ctx,{type:'doughnut',
+    data:{labels:k,datasets:[{data:k.map(c=>cm[c]),backgroundColor:['#f87171','#f59e0b','#60a5fa','#a78bfa','#4ade80'],borderWidth:0,hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'58%',
+      plugins:{legend:{position:'right',labels:{color:'#cdd5f0',font:{size:11},padding:10}}}}});
+}
+
+function renderTopicExplorer(){
+  const sub=document.getElementById('te-sub').value;if(!sub)return;
+  const data=topicStats(sub),tb=document.getElementById('te-body');
+  if(!data.length){tb.innerHTML=`<tr><td colspan="4" style="text-align:center;color:var(--d2);padding:18px;">No data for this subject yet.</td></tr>`;return;}
+  tb.innerHTML=data.map(d=>{
+    const col=d.pct<0?'var(--rose)':d.pct<50?'var(--gold)':'var(--teal)';
+    const bc=d.pct<0?'br':d.pct<50?'bg':'bt';
+    return`<tr>
+      <td style="font-weight:500;">${d.top}</td>
+      <td><span style="font-family:var(--mono);font-size:.77rem;">${d.net.toFixed(2)} / ${d.tot}</span></td>
+      <td><div class="pb-row"><div class="pb"><div class="pb-f" style="width:${Math.max(0,Math.min(100,d.pct))}%;background:${col};"></div></div><span class="bdg ${bc}">${d.pct.toFixed(1)}%</span></div></td>
+      <td><span style="font-size:.73rem;color:var(--gold);">${d.maxC}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function viewTest(id){
+  const t=db.tests.find(x=>x.id===id);
+  document.getElementById('m-title').textContent=`${t.type} — ${t.date}`;
+  const pct=t.tot>0?((t.net/t.tot)*100).toFixed(1):0;
+  const mc=pct<40?'var(--rose)':pct<65?'var(--gold)':'var(--teal)';
+  document.getElementById('m-score').innerHTML=`
+    <div class="msr-item"><div class="msr-val">${t.net.toFixed(2)}</div><div class="msr-lbl">Net Score</div></div>
+    <div class="msr-div"></div>
+    <div class="msr-item"><div class="msr-val" style="color:var(--d2)">${t.tot}</div><div class="msr-lbl">Total</div></div>
+    <div class="msr-div"></div>
+    <div class="msr-item"><div class="msr-val" style="color:${mc}">${pct}%</div><div class="msr-lbl">Performance</div></div>
+    <div class="msr-div"></div>
+    <div class="msr-item"><div class="msr-val" style="color:var(--blue)">${t.qs.length}</div><div class="msr-lbl">Questions</div></div>`;
+
+  const bd={};let errH='',okH='';
+  t.qs.forEach(q=>{
+    if(!bd[q.sub])bd[q.sub]={asked:0,askedMarks:0,cor:0,wr:0,un:0,gain:0,lost:0};
+    const b=bd[q.sub];
+    b.asked++;
+    b.askedMarks+=q.mk;
+    if(q.st==='Correct'){
+      b.cor++;b.gain+=q.mk;
+      okH+=`<div class="log-row"><span style="color:var(--teal)">✓</span><span><b>${q.sub}</b> — ${q.top} <span style="color:var(--d2)">(+${q.mk})</span></span></div>`;
+    } else if(q.st==='Incorrect'){
+      const p=q.tp==='MCQ'?(q.mk===1?0.33:0.66):0;
+      b.wr++;b.lost+=p;
+      errH+=`<div class="log-row"><span style="color:var(--rose)">✗</span><div><b>Q${q.q}</b> — ${q.top}<br><span style="color:var(--gold);font-size:.69rem;">${q.ca} <span style="color:var(--rose)">(−${p.toFixed(2)})</span></span></div></div>`;
+    } else {
+      b.un++;
+      errH+=`<div class="log-row"><span style="color:var(--d2)">⊘</span><div><b style="color:var(--tx)">Q${q.q}</b> — ${q.top}<br><span style="color:var(--d2);font-size:.69rem;">Skipped: ${q.ca}</span></div></div>`;
+    }
+  });
+  
+  document.getElementById('m-subj').innerHTML=Object.keys(bd).map(s=>{
+    const b=bd[s];
+    const net=(b.gain-b.lost).toFixed(2);
+    return`<tr>
+      <td style="font-weight:600;">${s}</td>
+      <td style="font-family:var(--mono)">${b.asked}</td>
+      <td style="font-family:var(--mono); color:var(--d2)">${b.askedMarks} M</td>
+      <td style="font-family:var(--mono); color:${net<0?'var(--rose)':'var(--teal)'}; font-weight:bold;">${net} M</td>
+      <td><span style="color:var(--teal)">${b.cor}</span> / <span style="color:var(--rose)">${b.wr}</span> / <span style="color:var(--d2)">${b.un}</span></td>
+    </tr>`;
+  }).join('');
+  
+  document.getElementById('m-err').innerHTML=errH||`<div style="color:var(--teal);padding:10px;font-size:.78rem;">🎉 No mistakes or skipped questions!</div>`;
+  document.getElementById('m-ok').innerHTML=okH||`<div style="color:var(--d2);padding:10px;font-size:.78rem;">No correct answers.</div>`;
+  document.getElementById('modal').classList.add('open');
+}
+
+// ── SUBJECT DEEP DIVE ──
+async function renderSubjectDeepDive(){
+  const ss=subjectStats();
+  const arr=Object.keys(ss).filter(s=>ss[s].asked>0).map(s=>({s,...ss[s]})).sort((a,b)=>b.pct-a.pct);
+  const empty=document.getElementById('an-empty');
+  if(!arr.length){
+    empty.style.display='flex';
+    ['best-grid','worst-grid','an-body'].forEach(id=>document.getElementById(id).innerHTML='');
+    return;
+  }
+  empty.style.display='none';
+
+  const buildCard=async(item)=>{
+    const col=item.pct<0?'var(--rose)':item.pct<50?'var(--gold)':'var(--teal)';
+    const cls=item.pct<0?'br':item.pct<50?'bg':'bt';
+    const nk='sn_'+item.s;
+    const hasNote=await FileStore.get(nk);
+    const noteHtml=hasNote
+      ?`<button class="btn btn-sm btn-teal" style="flex:1;" onclick="viewDocument('${nk}','${item.s} Notes')">👁️ View Notes</button>
+         <button class="btn btn-sm btn-rose" style="padding:5px 8px;" onclick="deleteFile('${nk}',renderSubjectDeepDive)">🗑️</button>`
+      :`<label class="btn btn-sm bgry" style="width:100%;cursor:pointer;">📎 Attach Note
+          <input type="file" hidden accept="image/*,application/pdf" onchange="uploadFile('${nk}',this,renderSubjectDeepDive)">
+        </label>`;
+    return`<div class="acard">
+      <div class="acard-top"><span class="acard-name">${item.s}</span><span class="bdg ${cls}">${item.pct.toFixed(1)}%</span></div>
+      <div class="acard-bar"><div class="acard-fill" style="width:${Math.max(0,Math.min(100,item.pct))}%;background:${col};"></div></div>
+      <div class="acard-meta"><span>${item.asked} Qs</span><span>${item.net.toFixed(2)} / ${item.tot} marks</span><span>✓${item.cor} ✗${item.wr}</span></div>
+      <div class="acard-note">${noteHtml}</div>
+    </div>`;
+  };
+
+  const top4=arr.slice(0,4);
+  const top4keys=new Set(top4.map(x=>x.s));
+  const worst4=[...arr].reverse().slice(0,4).filter(x=>!top4keys.has(x.s));
+
+  let bH=''; for(const it of top4)bH+=await buildCard(it);
+  let wH=''; for(const it of worst4)wH+=await buildCard(it);
+  document.getElementById('best-grid').innerHTML=bH||'<div style="color:var(--d2);font-size:.8rem;padding:10px;">No data yet.</div>';
+  document.getElementById('worst-grid').innerHTML=wH||'<div style="color:var(--d2);font-size:.8rem;padding:10px;">Not enough subjects to split.</div>';
+
+  document.getElementById('an-body').innerHTML=arr.map(item=>{
+    const col=item.pct<0?'var(--rose)':item.pct<50?'var(--gold)':'var(--teal)';
+    const cls=item.pct<0?'br':item.pct<50?'bg':'bt';
+    return`<tr>
+      <td style="font-weight:600;">${item.s}</td>
+      <td style="font-family:var(--mono)">${item.asked}</td>
+      <td style="font-family:var(--mono);color:${col}">${item.net.toFixed(2)}</td>
+      <td style="font-family:var(--mono)">${item.tot}</td>
+      <td><div class="pb-row"><div class="pb"><div class="pb-f" style="width:${Math.max(0,Math.min(100,item.pct))}%;background:${col};"></div></div><span class="bdg ${cls}">${item.pct.toFixed(1)}%</span></div></td>
+      <td>${item.pct>=60?'🟢 Strong':item.pct>=30?'🟡 Average':'🔴 Weak'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── SPACED REVISION ──
+function renderRevision(){
+  const focus=document.getElementById('rev-focus-toggle').checked;
+  const body=document.getElementById('rev-body'),empty=document.getElementById('rev-empty'),tbl=document.getElementById('rev-tbl');
+  let rows=[],active=new Set(),due=0;
+  db.tests.forEach(t=>t.qs.forEach(q=>active.add(q.sub)));
+  document.getElementById('srs-active').textContent=active.size;
+  document.getElementById('srs-dormant').textContent=Object.keys(db.topics).length-active.size;
+  Object.keys(db.topics).forEach(sub=>db.topics[sub].forEach(top=>{
+    const k=`${sub}|${top}`;if(!db.revLog[k])db.revLog[k]={lastRev:null,count:0,difficulty:'Medium'};
+    const r=db.revLog[k],thr=r.difficulty==='Hard'?3:r.difficulty==='Easy'?15:7;
+    const over=daysAgo(r.lastRev)>=thr;if(over)due++;
+    if(!focus||over)rows.push({sub,top,k,over,...r});
+  }));
+  document.getElementById('srs-due').textContent=due;
+  if(!rows.length){empty.style.display='flex';tbl.style.display='none';return;}
+  empty.style.display='none';tbl.style.display='table';
+  body.innerHTML=rows.map(r=>{
+    const cc=r.count===0?'bgry':r.count<3?'bb':'bt';
+    return`<tr style="${r.over?'background:rgba(248,113,113,.04);':''}">
+      <td style="font-weight:600;">${r.sub}</td>
+      <td style="color:var(--d2);">${r.top}</td>
+      <td><select class="fs" style="padding:5px 9px;font-size:.77rem;" onchange="setDiff('${r.k}',this.value)">
+        <option ${r.difficulty==='Easy'?'selected':''}>Easy</option>
+        <option ${r.difficulty==='Medium'?'selected':''}>Medium</option>
+        <option ${r.difficulty==='Hard'?'selected':''}>Hard</option>
+      </select></td>
+      <td><span class="bdg ${cc}">${r.count}×</span></td>
+      <td><span style="font-family:var(--mono);font-size:.72rem;color:${r.over?'var(--rose)':'var(--d2)'};">${r.lastRev||'Never'}${r.over?' ⚠':''}</span></td>
+      <td><button class="btn btn-teal btn-sm" onclick="markRev('${r.k}')">+1 Today</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function markRev(k){db.revLog[k].lastRev=localDate();db.revLog[k].count++;save();renderRevision();renderCommandCenter();}
+function setDiff(k,v){db.revLog[k].difficulty=v;save();renderRevision();renderCommandCenter();}
+
+// ── FILE HANDLING ──
+function uploadFile(dbId,input,cb=renderMistakes){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    await FileStore.save(dbId,{type:file.type,data:e.target.result,name:file.name});
+    cb();
+  };
+  reader.readAsDataURL(file);
+}
+
+async function deleteFile(dbId,cb=renderMistakes){
+  if(confirm('Remove this attached file?')){await FileStore.delete(dbId);cb();}
+}
+
+async function viewDocument(dbId,label){
+  const file=await FileStore.get(dbId);if(!file)return;
+  const vModal=document.getElementById('viewer-modal'),content=document.getElementById('viewer-content');
+  document.getElementById('viewer-title').textContent=label;
+  content.innerHTML='<div style="color:var(--d2);font-size:.85rem;">Loading…</div>';
+  vModal.classList.add('open');
+  if(file.type.startsWith('image/')){
+    content.innerHTML=`<img src="${file.data}" alt="${label}">`;
+  } else if(file.type==='application/pdf'){
+    try{
+      const res=await fetch(file.data);const blob=await res.blob();
+      currentBlobUrl=URL.createObjectURL(blob);
+      content.innerHTML=`<iframe src="${currentBlobUrl}"></iframe>`;
+    }catch{content.innerHTML=`<div style="color:var(--rose);font-size:.83rem;">Error rendering PDF.</div>`;}
+  } else {
+    content.innerHTML=`<div style="color:var(--d2);font-size:.83rem;">Unsupported file format.</div>`;
+  }
+}
+
+// ── BOOK OF MISTAKES ──
+async function renderMistakes(){
+  const filter=document.getElementById('mk-filter').value;
+  const grid=document.getElementById('mk-grid'),empty=document.getElementById('mk-empty');
+  let mqs=[];
+  
+  db.tests.forEach(t=>t.qs.forEach(q=>{
+    if((q.st==='Incorrect' || q.st==='Unattempted') && (filter==='All'||q.sub===filter)){
+      mqs.push({...q,date:t.date});
+    }
+  }));
+  
+  if(!mqs.length){empty.style.display='flex';grid.innerHTML='';return;}
+  empty.style.display='none';grid.innerHTML='';
+
+  for(const q of mqs.reverse()){
+    const isUn = q.st === 'Unattempted';
+    const pen = isUn ? 0 : (q.tp==='MCQ'?(q.mk===1?0.33:0.66):0);
+    const note = db.mkNotes[q.id]||'';
+    const kQ = q.id+'_q', kA = q.id+'_a';
+    const fQ = await FileStore.get(kQ), fA = await FileStore.get(kA);
+
+    const fileZone=(fObj,key,label)=>{
+      if(fObj)return`<div class="file-zone has-file">
+        <div class="file-zone-lbl">${label} ✓</div>
+        <div class="file-btns">
+          <button class="btn btn-sm btn-teal" style="flex:1;" onclick="viewDocument('${key}','${label}')">👁️ View</button>
+          <button class="btn btn-sm btn-rose" style="padding:5px 8px;" onclick="deleteFile('${key}')">🗑️</button>
+        </div></div>`;
+      return`<div class="file-zone">
+        <div class="file-zone-lbl">${label}</div>
+        <label class="btn btn-sm bgry" style="cursor:pointer;width:100%;">📎 Attach
+          <input type="file" hidden accept="image/*,application/pdf" onchange="uploadFile('${key}',this)">
+        </label></div>`;
+    };
+
+    const penBadge = isUn ? `<span class="bdg bgry">Skipped</span>` : `<span class="bdg br">−${pen.toFixed(2)}</span>`;
+    const causeLine = isUn ? `<div class="mk-cause">Status: <span style="color:var(--d2)">Unattempted</span></div>` : `<div class="mk-cause">Cause: <span style="color:var(--gold)">${q.ca}</span></div>`;
+
+    const el=document.createElement('div');
+    el.className = 'mk' + (isUn ? ' mk-unattempted' : ''); 
+    el.innerHTML=`
+      <div class="mk-top">
+        <div><span class="bdg bb">${q.sub}</span><div class="mk-topic">${q.top}</div></div>
+        ${penBadge}
+      </div>
+      ${causeLine}
+      <textarea class="mk-note" placeholder="Write the core concept / correct formula here…" data-qid="${q.id}">${note}</textarea>
+      <div class="mk-files">${fileZone(fQ,kQ,'Question')}${fileZone(fA,kA,'Solution')}</div>
+    `;
+    el.querySelector('textarea').addEventListener('input',e=>{db.mkNotes[e.target.dataset.qid]=e.target.value;save();});
+    grid.appendChild(el);
+  }
+}
+
+// ── REFRESH ──
+async function refreshAll(){
+  renderCommandCenter();
+  renderAnalyticsHistory();
+  await renderSubjectDeepDive();
+  renderRevision();
+  await renderMistakes();
+}
+
+window.addEventListener('load',init);
+</script>
+</body>
+</html>
