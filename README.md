@@ -1,6 +1,6 @@
 <div align="center">
 
-![GATE Preparation Tracker](https://capsule-render.vercel.app/api?type=waving&height=220&color=0:0F172A,45:2563EB,100:14B8A6&text=GATE%20PREPARATION%20Tracker&fontColor=FFFFFF&fontSize=42&fontAlignY=38&desc=Command%20center%20for%20mock%20tests,%20revision,%20analytics,%20and%20mistake%20review&descAlignY=58&animation=fadeIn)
+![GATE Preparation Tracker](https://capsule-render.vercel.app/api?type=waving&height=220&color=0:0F172A,45:2563EB,100:14B8A6&text=GATE%20Preparation%20Tracker&fontColor=FFFFFF&fontSize=42&fontAlignY=38&desc=Adaptable%20command%20center%20for%20mock%20tests,%20revision,%20analytics,%20and%20mistake%20review&descAlignY=58&animation=fadeIn)
 
 [![Made with HTML](https://img.shields.io/badge/HTML5-0f172a?style=for-the-badge&logo=html5&logoColor=E34F26)](#tech-stack)
 [![Vanilla JS](https://img.shields.io/badge/Vanilla%20JS-0f172a?style=for-the-badge&logo=javascript&logoColor=F7DF1E)](#tech-stack)
@@ -13,7 +13,9 @@
 
 ## Overview
 
-**GATE CSE 2027 Tracker** is a fully local, browser-based preparation dashboard for Computer Science aspirants. It turns mock-test entries into useful signals: topic accuracy, negative marking impact, weak-area detection, revision alerts, and a searchable Book of Mistakes.
+**Gate-Preparation-Tracker** is a fully local, browser-based preparation dashboard for GATE aspirants across branches. It turns mock-test entries into useful signals: topic accuracy, negative marking impact, weak-area detection, revision alerts, and a searchable Book of Mistakes.
+
+The current project can be customized for your own branch by editing the syllabus/topic data inside `index.html`. Update the branch name, exam year/countdown target, subjects, and topic list, and the same tracker structure can work for CSE, ECE, EE, ME, CE, DA, or any other GATE paper.
 
 No login. No backend. No spreadsheet chaos. Just open `index.html` and start tracking.
 
@@ -28,7 +30,7 @@ No login. No backend. No spreadsheet chaos. Just open `index.html` and start tra
       <h3>Command Center</h3>
       <p>Your daily cockpit for countdown, consistency, tactical missions, revision pressure, and performance momentum.</p>
       <ul>
-        <li>GATE 2027 countdown</li>
+        <li>Configurable GATE countdown</li>
         <li>7-day study streak</li>
         <li>Priority revision queue</li>
         <li>High-signal performance cards</li>
@@ -74,7 +76,7 @@ No login. No backend. No spreadsheet chaos. Just open `index.html` and start tra
 | Command Center | Shows countdown, streak, momentum, daily tactical missions, and revision pressure. |
 | Smart scoring | Applies GATE-style negative marking for MCQ questions and zero penalty for MSQ/NAT. |
 | SRS revision | Schedules topics by difficulty so weak concepts return at the right time. |
-| Micro-topic analytics | Tracks 80+ GATE CSE topics and highlights exact weak zones. |
+| Micro-topic analytics | Tracks branch-specific GATE topics and highlights exact weak zones. |
 | Mistake review | Stores mistakes, skipped questions, root causes, notes, and attachments. |
 | Backup system | Exports and imports your complete tracker data as JSON. |
 
@@ -102,7 +104,7 @@ Your preparation data stays on your machine.
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/Sriramsahoo2004/gate-cse-tracker.git
+git clone https://github.com/Sriramsahoo2004/Gate-Preparation-Tracker.git
 ```
 
 2. Open the project folder.
@@ -125,7 +127,15 @@ That is it. No install step, no build command, no database setup.
 
 ## Adapt It
 
-Want to customize this tracker for another GATE branch? Update the syllabus data inside `index.html`, especially the CSE topic list used by the analytics and revision system.
+This tracker is designed to be branch-adaptable. To use it for your own GATE paper, open `index.html` and update the configuration/data sections that define:
+
+- Branch or paper name shown in the UI
+- Exam year and countdown target
+- Subjects
+- Topic and micro-topic list
+- Any branch-specific scoring or analysis labels you want to display
+
+Once those are changed, the Command Center, Analytics, Revision, and Book of Mistakes flows can serve your selected branch.
 
 <div align="center">
 
