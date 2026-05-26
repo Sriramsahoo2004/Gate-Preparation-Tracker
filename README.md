@@ -1,6 +1,6 @@
 <div align="center">
 
-![GATE Preparation Tracker](https://capsule-render.vercel.app/api?type=waving&height=220&color=0:0F172A,45:2563EB,100:14B8A6&text=GATE%20CSE%202027%20Tracker&fontColor=FFFFFF&fontSize=42&fontAlignY=38&desc=Command%20center%20for%20mock%20tests,%20revision,%20analytics,%20and%20mistake%20review&descAlignY=58&animation=fadeIn)
+![GATE Preparation Tracker](https://capsule-render.vercel.app/api?type=waving&height=220&color=0:0F172A,45:2563EB,100:14B8A6&text=GATE%20PREPARATION%20Tracker&fontColor=FFFFFF&fontSize=42&fontAlignY=38&desc=Command%20center%20for%20mock%20tests,%20revision,%20analytics,%20and%20mistake%20review&descAlignY=58&animation=fadeIn)
 
 [![Made with HTML](https://img.shields.io/badge/HTML5-0f172a?style=for-the-badge&logo=html5&logoColor=E34F26)](#tech-stack)
 [![Vanilla JS](https://img.shields.io/badge/Vanilla%20JS-0f172a?style=for-the-badge&logo=javascript&logoColor=F7DF1E)](#tech-stack)
